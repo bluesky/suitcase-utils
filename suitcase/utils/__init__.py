@@ -1,9 +1,8 @@
-from pathlib import Path
 import collections
-import os
+import errno
 import io
-import event_model
-from bluesky.plans import count
+import os
+from pathlib import Path
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
@@ -21,17 +20,22 @@ class SuitcaseUtilsTypeError(SuitcaseUtilsError):
     ...
 
 
-class SuitcaseUtilsModeError(SuitcaseUtilsError):
+class ModeError(SuitcaseUtilsError):
     ...
 
 
-class SuitcaseUtilsUnknownEventType(SuitcaseUtilsError):
+class UnknownEventType(SuitcaseUtilsError):
     ...
 
 
-class MultiFileWrapper:
+class MultiFileManager:
     """
     A class that manages multiple files.
+
+    Parameters:
+    -----------
+    directory : str or Path
+        The directory (as a string or as a Path) to create teh files inside.
 
     This design is inspired by Python's zipfile and tarfile libraries.
     """
@@ -94,9 +98,9 @@ class MultiFileWrapper:
         errors : string or None
             Passed through to open. See Python open documentation for allowed
             values.
-       Returns
-       -------
-       file : handle
+        Returns
+        -------
+        file : handle
         """
         filepath = self.reserve_name(label, postfix)
         # create the directories if they don't yet exist
@@ -108,29 +112,38 @@ class MultiFileWrapper:
                     raise
 
         if mode not in ['x', 'xt', 'xb']:
-            raise SuitcaseUtilsModeError(
+            raise ModeError(
                 f'the mode passed to MultiFileWrapper.open is {mode} but needs'
                 ' to be one of "x", "xt" or "xb"')
-        return open(filepath, mode=mode, encoding=encoding, errors=errors)
+        f = open(filepath, mode=mode, encoding=encoding, errors=errors)
+        return f
 
 
 class PersistentStringIO(io.StringIO):
-    ''' A version of StringIO that avoids closing the file n a context manager.
+    ''' A version of StringIO that avoids closing the file in a context manager
 
+        .. note::
+
+            This version is not the same as StringIO in that calling
+            `self.close()` will do nothing. to close use `self.clear()` instead
     '''
-    def __exit__(*except_detail):
+    def close(*except_detail):
         pass  # this avoids closing the file handle too early.
 
 
 class PersistentBytesIO(io.BytesIO):
     ''' A version of BytesIO that avoids closing the file n a context manager.
 
+        .. note::
+
+            This version is not the same as StringIO in that calling
+            `self.close()` will do nothing. to close use `self.clear()` instead
     '''
-    def __exit__(*except_detail):
+    def close(*except_detail):
         pass  # this avoids closing the file handle too early.
 
 
-class MemoryBuffersWrapper:
+class MemoryBuffersManager:
     """
     A class that manages multiple StringIO and/or BytesIO instances.
 
@@ -210,10 +223,8 @@ class MemoryBuffersWrapper:
         elif mode == 'xb':
             buffer = PersistentBytesIO()
         else:
-            raise SuitcaseUtilsModeError(
+            raise ModeError(
                 f'the mode passed to MemoryBuffersWrapper.open is {mode} but '
                 'needs to be one of "x", "xt" or "xb"')
         self.buffers[postfix] = buffer
         return buffer
-
-

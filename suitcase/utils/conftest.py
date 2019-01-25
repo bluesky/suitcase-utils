@@ -11,10 +11,12 @@ import pytest
 def image_data(RE, hw, request):
     return  events_data(RE, hw, det='direct_img', event_type=request.param)
 
+
 @pytest.fixture(params=['event', 'bulk_events', 'event_page'],
                 scope='function')
 def scalar_data(RE, hw, request):
     return events_data(RE, hw, det='det', event_type=request.param)
+
 
 def events_data(RE, hw, det='det', event_type='event'):
     '''Generates data to be used for testing of suitcase.*.export(..) functions
@@ -62,21 +64,22 @@ def events_data(RE, hw, det='det', event_type='event'):
             if name == 'event':
                 event_list.append(doc)
             elif name == 'stop':
-                collector.append(('bulk_event', {'primary': event_list}))
+                collector.append(('bulk_events', {'primary': event_list}))
                 collector.append((name, doc))
             else:
                 collector.append((name, doc))
     else:
         raise SuitcaseUtilsUnknownEventType('Unknown event_type kwarg passed '
-            'to suitcase.utils.events_data')
+                                            'to suitcase.utils.events_data')
 
     # collect the documents
     RE.subscribe(collect)
-    RE(count([hw.direct_img], 5))
+    RE(count([getattr(hw, det)], 5))
 
     expected = create_expected(collector, event_list)
 
     return collector, expected
+
 
 def create_expected(collector, event_list):
     '''Generates the expected dictionary used intesting from a collector list
