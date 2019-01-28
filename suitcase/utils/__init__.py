@@ -43,6 +43,7 @@ class MultiFileManager:
         self._directory = Path(directory)
         self._reserved_names = set()
         self._artifacts = collections.defaultdict(list)
+        self._files = []
 
     @property
     def artifacts(self):
@@ -116,30 +117,41 @@ class MultiFileManager:
                 f'the mode passed to MultiFileWrapper.open is {mode} but needs'
                 ' to be one of "x", "xt" or "xb"')
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
+        self._files.append(f)
         return f
+
+    def close(self):
+        '''close all files open by the manager
+        '''
+        for f in self._files:
+            f.close()
 
 
 class PersistentStringIO(io.StringIO):
-    ''' A version of StringIO that avoids closing the file in a context manager
+    ''' A StringIO that does not clear the buffer when closed or excited from
+    context.
 
         .. note::
 
-            This version is not the same as StringIO in that calling
-            `self.close()` will do nothing. to close use `self.clear()` instead
+            This StringIO subclass behaves like StringIO except that its
+            close() method, which would normally clear the buffer, has no
+            effect. The clear() method, however, may still be used.
     '''
-    def close(*except_detail):
+    def close():
         pass  # this avoids closing the file handle too early.
 
 
 class PersistentBytesIO(io.BytesIO):
-    ''' A version of BytesIO that avoids closing the file n a context manager.
+    ''' A BytesIO that does not clear the buffer when closed or exited from
+    context.
 
         .. note::
 
-            This version is not the same as StringIO in that calling
-            `self.close()` will do nothing. to close use `self.clear()` instead
+            This BytesIO subclass behaves like BytesIO except that its
+            close() method, which would normally clear the buffer, has no
+            effect. The clear() method, however, may still be used.
     '''
-    def close(*except_detail):
+    def close():
         pass  # this avoids closing the file handle too early.
 
 
@@ -228,3 +240,10 @@ class MemoryBuffersManager:
                 'needs to be one of "x", "xt" or "xb"')
         self.buffers[postfix] = buffer
         return buffer
+
+    def close(self):
+        '''close all files open by the manager
+        '''
+        for buffer in self.buffers.values():
+            buffer.clear()
+        # Note: .clear() is used not .close(), see Persistent*IO defn. above

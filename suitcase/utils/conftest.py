@@ -1,6 +1,6 @@
 from bluesky.tests.conftest import RE # noqa
 from ophyd.tests.conftest import hw # noqa
-from . import SuitcaseUtilsUnknownEventType
+from . import UnknownEventType
 import event_model
 from bluesky.plans import count
 import pytest
@@ -69,8 +69,8 @@ def events_data(RE, hw, det='det', event_type='event'):
             else:
                 collector.append((name, doc))
     else:
-        raise SuitcaseUtilsUnknownEventType('Unknown event_type kwarg passed '
-                                            'to suitcase.utils.events_data')
+        raise UnknownEventType('Unknown event_type kwarg passed to '
+                               'suitcase.utils.events_data')
 
     # collect the documents
     RE.subscribe(collect)
@@ -96,9 +96,9 @@ def create_expected(collector, event_list):
         A dictionary with the schema:
             {'metadata': {'start': start_doc, 'stop': stop_doc,
                           'descriptors': {'primary': 'descriptor'}},
-             'primary': {'seq_num': [], 'uid': [], 'time': [],
+             'streams': {'primary': {'seq_num': [], 'uid': [], 'time': [],
                          'timestamps': {det_name:[]},
-                         'data': {det_name:[]}}}
+                         'data': {det_name:[]}}}}
 
         .. note::
 
@@ -110,24 +110,26 @@ def create_expected(collector, event_list):
     # create the expected dictionary from the documents
     docs = (doc for name, doc in collector)
     start, descriptor, *data_events, stop = docs
-    expected = {}
+    expected = {'streams': {}}
     det_name = list(descriptor['data_keys'].keys())[0]  # There is only one
-    expected['primary'] = {'data': {det_name: []}, 'seq_num': [], 'time': [],
-                           'uid': [], 'timestamps': {'img': []}}
+    expected['streams']['primary'] = {'data': {det_name: []}, 'seq_num': [],
+                                      'time': [], 'uid': [],
+                                      'timestamps': {'img': []}}
     for event in event_list:
-        expected['primary']['data'][det_name].append(event['data'][det_name])
-        expected['primary']['timestamps'][det_name].append(
+        expected['streams']['primary']['data'][det_name].append(
+            event['data'][det_name])
+        expected['streams']['primary']['timestamps'][det_name].append(
             event['timestamps'][det_name])
-        expected['primary']['seq_num'].append(event['seq_num'])
-        expected['primary']['time'].append(event['time'])
-        expected['primary']['uid'].append(event['uid'])
+        expected['streams']['primary']['seq_num'].append(event['seq_num'])
+        expected['streams']['primary']['time'].append(event['time'])
+        expected['streams']['primary']['uid'].append(event['uid'])
 
     expected['metadata'] = {'start': start, 'stop': stop,
                             'descriptors': {'primary': descriptor}}
 
     # ensure that the returned data is a built-in python type:
-    for i, val in enumerate(expected['primary']['data'][det_name]):
-        expected['primary']['data'][det_name][i] = event_model._sanitize_numpy(
-            val)
+    for i, val in enumerate(expected['streams']['primary']['data'][det_name]):
+        expected['streams']['primary']['data'][det_name][i] =\
+            event_model._sanitize_numpy(val)
 
     return expected
