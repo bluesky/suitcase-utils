@@ -95,9 +95,10 @@ def create_expected(collector, event_list):
     expected : dict
         A dictionary with the schema:
             {'metadata': {'start': start_doc, 'stop': stop_doc,
-                          'descriptors': {'primary': 'descriptor'}},
+                          'descriptors': {'primary':
+                                          {'descriptor uid': descriptor}}},
              'streams': {'primary': {'seq_num': [], 'uid': [], 'time': [],
-                         'timestamps': {det_name:[]},
+                         'descriptor': [], 'timestamps': {det_name:[]},
                          'data': {det_name:[]}}}}
 
         .. note::
@@ -113,7 +114,7 @@ def create_expected(collector, event_list):
     expected = {'streams': {}}
     det_name = list(descriptor['data_keys'].keys())[0]  # There is only one
     expected['streams']['primary'] = {'data': {det_name: []}, 'seq_num': [],
-                                      'time': [], 'uid': [],
+                                      'time': [], 'uid': [], 'descriptor': [],
                                       'timestamps': {'img': []}}
     for event in event_list:
         expected['streams']['primary']['data'][det_name].append(
@@ -123,9 +124,12 @@ def create_expected(collector, event_list):
         expected['streams']['primary']['seq_num'].append(event['seq_num'])
         expected['streams']['primary']['time'].append(event['time'])
         expected['streams']['primary']['uid'].append(event['uid'])
+        expected['streams']['primary']['descriptor'].append(
+            event['descriptor'])
 
     expected['metadata'] = {'start': start, 'stop': stop,
-                            'descriptors': {'primary': descriptor}}
+                            'descriptors':
+                                {'primary': {descriptor['uid']: descriptor}}}
 
     # ensure that the returned data is a built-in python type:
     for i, val in enumerate(expected['streams']['primary']['data'][det_name]):
