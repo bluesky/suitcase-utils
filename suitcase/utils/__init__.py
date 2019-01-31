@@ -105,12 +105,7 @@ class MultiFileManager:
         """
         filepath = self.reserve_name(label, postfix)
         # create the directories if they don't yet exist
-        if not os.path.exists(os.path.dirname(filepath)):
-            try:
-                os.makedirs(os.path.dirname(filepath))
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
         if mode not in ['x', 'xt', 'xb']:
             raise ModeError(
@@ -128,8 +123,7 @@ class MultiFileManager:
 
 
 class PersistentStringIO(io.StringIO):
-    ''' A StringIO that does not clear the buffer when closed or excited from
-    context.
+    ''' A StringIO that does not clear the buffer when closed. 
 
         .. note::
 
@@ -142,8 +136,7 @@ class PersistentStringIO(io.StringIO):
 
 
 class PersistentBytesIO(io.BytesIO):
-    ''' A BytesIO that does not clear the buffer when closed or exited from
-    context.
+    ''' A BytesIO that does not clear the buffer when closed.
 
         .. note::
 
@@ -240,6 +233,7 @@ class MemoryBuffersManager:
                 'needs to be one of "x", "xt" or "xb"')
         self.buffers[postfix] = buffer
         return buffer
+
 
     def close(self):
         '''close all files open by the manager
