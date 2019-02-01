@@ -14,7 +14,7 @@ install:
 
 script:
   - coverage run -m pytest tests/tests.py  # Run the tests and check for test coverage.
-  - coverage report -m  # Generate test coverage report.
+  - coverage report -m  --include=suitcase/*,tests/* # Generate test coverage report.
   - codecov  # Upload the report to codecov.
   - flake8 --max-line-length=115  # Enforce code style (but relax line length limit a bit).
   - make -C docs html  # Build the documentation.
