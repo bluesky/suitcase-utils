@@ -1,5 +1,4 @@
 import collections
-import errno
 import io
 import os
 from pathlib import Path
@@ -123,7 +122,7 @@ class MultiFileManager:
 
 
 class PersistentStringIO(io.StringIO):
-    ''' A StringIO that does not clear the buffer when closed. 
+    ''' A StringIO that does not clear the buffer when closed.
 
         .. note::
 
@@ -234,10 +233,11 @@ class MemoryBuffersManager:
         self.buffers[postfix] = buffer
         return buffer
 
-
     def close(self):
-        '''close all files open by the manager
+        '''close all buffers open by the manager
+
+        Note: this is a no-op method added for API consistency only, for the
+        details on why it is a no-op see Persistent*IO definitions in
+        `suitcase.utils.__init__`
         '''
-        for buffer in self.buffers.values():
-            buffer.clear()
-        # Note: .clear() is used not .close(), see Persistent*IO defn. above
+        ...
