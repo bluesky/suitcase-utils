@@ -16,7 +16,7 @@ def test_multifile_basic_operation(tmp_path):
     with pytest.raises(SuitcaseUtilsValueError):
         manager.open('thing', 'stuff', 'x')
     with pytest.raises(SuitcaseUtilsValueError):
-        name = manager.reserve_name('thing', 'stuff')
+        manager.reserve_name('thing', 'stuff')
 
     # Check that abs paths are not allowed.
     with pytest.raises(SuitcaseUtilsValueError):
@@ -45,7 +45,7 @@ def test_memory_buffers_basic_operation():
 
     # Check that reserve_name fails explicitly on MemoryBuffersManager.
     with pytest.raises(SuitcaseUtilsTypeError):
-        name = manager.reserve_name('thing', 'stuff')
+        manager.reserve_name('thing', 'stuff')
 
     # Check that name clashes are not allowed.
     with pytest.raises(SuitcaseUtilsValueError):
