@@ -25,9 +25,7 @@ def multi_stream_one_descriptor_plan(dets):
 @pytest.fixture(params=[['det'], ['direct_img'], ['det', 'direct_img']],
                 scope='function')
 def detector_list(hw, request):
-    dets = []
-    for det_name in request.param:
-        dets.append(getattr(hw, det_name))
+    dets = [getattr(hw, det_name) for det_name in request.param]
     return dets
 
 
