@@ -225,7 +225,6 @@ class MemoryBuffersManager:
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix!r} has already been used.")
         self._reserved_names.add(name)
-        self._artifacts[label].append(name)
         if mode in ('x', 'xt'):
             buffer = PersistentStringIO()
         elif mode == 'xb':
@@ -234,11 +233,12 @@ class MemoryBuffersManager:
             raise ModeError(
                 f"The mode passed to MemoryBuffersManager.open is {mode} but "
                 f"needs to be one of 'x', 'xt' or 'xb'.")
+        self._artifacts[label].append(buffer)
         self.buffers[postfix] = buffer
         return buffer
 
     def close(self):
         '''Close all buffers opened by the manager.
         '''
-        for f in self._files:
+        for f in self.buffers.values():
             f.close()
