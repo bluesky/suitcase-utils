@@ -6,8 +6,6 @@ from ophyd.tests.conftest import hw # noqa
 import pytest # noqa
 from . import UnknownEventType # noqa
 
-hw = hw()
-
 
 # Some useful plans for use in testing
 def simple_plan(dets):
@@ -24,10 +22,13 @@ def multi_stream_one_descriptor_plan(dets):
     yield from _plan(dets)
 
 
-@pytest.fixture(params=[[hw.det], [hw.direct_img], [hw.det, hw.direct_img]],
+@pytest.fixture(params=[['det'], ['direct_img'], ['det', 'direct_img']],
                 scope='function')
-def detector_list(request):
-    return request.param
+def detector_list(hw, request):
+    dets = []
+    for det_name in request.param:
+        dets.append(getattr(hw, det_name))
+    return dets
 
 
 @pytest.fixture(params=['event', 'bulk_events', 'event_page'],
