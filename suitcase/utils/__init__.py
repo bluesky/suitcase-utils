@@ -131,7 +131,8 @@ class PersistentStringIO(io.StringIO):
             effect. The clear() method, however, may still be used.
     '''
     def close():
-        pass  # this avoids closing the file handle too early.
+        # Avoid clearing the buffer before caller of ``export`` can access it.
+        pass
 
 
 class PersistentBytesIO(io.BytesIO):
@@ -144,7 +145,8 @@ class PersistentBytesIO(io.BytesIO):
             effect. The clear() method, however, may still be used.
     '''
     def close():
-        pass  # this avoids closing the file handle too early.
+        # Avoid clearing the buffer before caller of ``export`` can access it.
+        pass
 
 
 class MemoryBuffersManager:
