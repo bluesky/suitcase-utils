@@ -108,7 +108,7 @@ class MultiFileManager:
 
         if mode not in ['x', 'xt', 'xb']:
             raise ModeError(
-                f'the mode passed to MultiFileWrapper.open is {mode} but needs'
+                f'the mode passed to MultiFileManager.open is {mode} but needs'
                 ' to be one of "x", "xt" or "xb"')
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
         self._files.append(f)
@@ -186,7 +186,7 @@ class MemoryBuffersManager:
         filepath : Path
          """
         raise SuitcaseUtilsTypeError(
-            "MemoryBuffersWrapper is incompatible with exporters that require "
+            "MemoryBuffersManager is incompatible with exporters that require "
             "explicit filenames.")
 
     def open(self, label, postfix, mode, encoding=None, errors=None):
@@ -217,7 +217,8 @@ class MemoryBuffersManager:
         # it as a unique identifier for a given buffer.
         if Path(postfix).is_absolute():
             raise SuitcaseUtilsValueError(
-                f"{postfix} must be structured like a relative file path.")
+                f"The postfix {postfix} must be structured like a relative "
+                f"file path.")
         name = Path(postfix).expanduser().resolve()
         if name in self._reserved_names:
             raise SuitcaseUtilsValueError(
@@ -230,13 +231,13 @@ class MemoryBuffersManager:
             buffer = PersistentBytesIO()
         else:
             raise ModeError(
-                f'the mode passed to MemoryBuffersWrapper.open is {mode} but '
-                'needs to be one of "x", "xt" or "xb"')
+                f"The mode passed to MemoryBuffersManager.open is {mode} but "
+                f"needs to be one of 'x', 'xt' or 'xb'.")
         self.buffers[postfix] = buffer
         return buffer
 
     def close(self):
-        '''close all buffers opened by the manager
+        '''Close all buffers opened by the manager.
         '''
         for f in self._files:
             f.close()
