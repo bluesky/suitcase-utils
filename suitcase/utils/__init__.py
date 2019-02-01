@@ -65,7 +65,7 @@ class MultiFileManager:
         Returns
         -------
         name : Path
-         """
+        """
         if Path(postfix).is_absolute():
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix!r} must be structured like a relative "
@@ -98,6 +98,7 @@ class MultiFileManager:
         errors : string or None
             Passed through to open. See Python open documentation for allowed
             values.
+
         Returns
         -------
         file : handle
@@ -184,7 +185,7 @@ class MemoryBuffersManager:
         Returns
         ----------
         filepath : Path
-         """
+        """
         raise SuitcaseUtilsTypeError(
             "MemoryBuffersManager is incompatible with exporters that require "
             "explicit filenames.")
@@ -208,9 +209,9 @@ class MemoryBuffersManager:
         errors : string or None
             Not used. Accepted for compatibility with built-in open().
 
-       Returns
-       -------
-       file : handle
+        Returns
+        -------
+        file : handle
         """
         # Of course, in-memory buffers have no filepath, but we still expect
         # postfix to be a thing that looks like a relative filepath, and we use
