@@ -115,7 +115,7 @@ class MultiFileManager:
         return f
 
     def close(self):
-        '''close all files open by the manager
+        '''close all files opened by the manager
         '''
         for f in self._files:
             f.close()
@@ -234,10 +234,7 @@ class MemoryBuffersManager:
         return buffer
 
     def close(self):
-        '''close all buffers open by the manager
-
-        Note: this is a no-op method added for API consistency only, for the
-        details on why it is a no-op see Persistent*IO definitions in
-        `suitcase.utils.__init__`
+        '''close all buffers opened by the manager
         '''
-        ...
+        for f in self._files:
+            f.close()
