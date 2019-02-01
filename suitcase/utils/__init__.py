@@ -131,7 +131,7 @@ class PersistentStringIO(io.StringIO):
             close() method, which would normally clear the buffer, has no
             effect. The clear() method, however, may still be used.
     '''
-    def close():
+    def close(self):
         # Avoid clearing the buffer before caller of ``export`` can access it.
         pass
 
@@ -145,7 +145,7 @@ class PersistentBytesIO(io.BytesIO):
             close() method, which would normally clear the buffer, has no
             effect. The clear() method, however, may still be used.
     '''
-    def close():
+    def close(self):
         # Avoid clearing the buffer before caller of ``export`` can access it.
         pass
 
