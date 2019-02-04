@@ -1,6 +1,7 @@
 import bluesky # noqa
 from bluesky.tests.conftest import RE # noqa
 from bluesky.plans import count # noqa
+from bluesky.plan_stubs import trigger_and_read, configure
 import event_model # noqa
 from ophyd.tests.conftest import hw # noqa
 import pytest # noqa
@@ -18,6 +19,18 @@ def multi_stream_one_descriptor_plan(dets):
     @bluesky.preprocessors.baseline_decorator(dets)
     def _plan(dets):
         yield from count(dets)
+
+    yield from _plan(dets)
+
+
+def one_stream_multi_descriptors_plan(dets):
+    '''A plan that has one stream but two descriptors per stream)'''
+    @bluesky.preprocessors.run_decorator
+    def _plan(dets):
+        yield from trigger_and_read(dets)
+        for det in dets:
+            yield from configure(det)
+        yield from trigger_and_read(dets)
 
     yield from _plan(dets)
 
