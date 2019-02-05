@@ -6,6 +6,11 @@ import event_model # noqa
 from ophyd.tests.conftest import hw # noqa
 import pytest # noqa
 from . import UnknownEventType # noqa
+import warnings
+
+# This line is used to ignore the deprecation warning for bulk_events in tests
+warnings.filterwarnings("ignore", message="The document type 'bulk_events'*")
+
 
 _md = { 'reason': 'test', 'user': 'temp user', 'beamline': 'test_beamline'}
 
@@ -52,9 +57,16 @@ def event_type(request):
     return  request.param
 
 
+@pytest.fixture(params=[simple_plan, multi_stream_one_descriptor_plan,
+                        one_stream_multi_descriptors_plan],
+                scope='function')
+def plan_type(request):
+    return  request.param
+
+
 @pytest.fixture()
-def events_data(RE, detector_list, event_type):
-    '''A fixture that returnsevent data for a number of test cases.
+def generate_data(RE, detector_list, event_type):
+    '''A fixture that returns event data for a number of test cases.
 
     Returns a list of (name, doc) tuples for the plan passed in as an arg.
 
@@ -125,3 +137,22 @@ def events_data(RE, detector_list, event_type):
         return collector
 
     return _events_data_func
+
+
+@pytest.fixture
+def example_data(generate_data, plan_type):
+    '''A fixture that returns event data for a number of test cases.
+
+    Returns a list of (name, doc) tuples for each of the plans in plan_type.
+
+    Parameters
+    ----------
+    generate_data : list
+        pytest fixture defined in `suitcase.utils.conftest` which returns a
+        function that accepts a plan as an argument and returns name, do pairs
+    plan_type : list
+        pytest fixture defined in `suitcase.utils.conftest` which returns a
+        list of 'plans' to test against.
+    '''
+
+    return generate_data(plan_type)
