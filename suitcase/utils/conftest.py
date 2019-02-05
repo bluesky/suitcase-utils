@@ -7,25 +7,29 @@ from ophyd.tests.conftest import hw # noqa
 import pytest # noqa
 from . import UnknownEventType # noqa
 
+_md = { 'reason': 'test', 'user': 'temp user', 'beamline': 'test_beamline'}
 
 # Some useful plans for use in testing
 def simple_plan(dets):
     '''A simple plane which runs count with num=5'''
-    yield from count(dets, num=5)
+    md = {**_md, **{'test_plan_name': 'simple_plan'}}
+    yield from count(dets, num=5, md = md)
 
 
 def multi_stream_one_descriptor_plan(dets):
     '''A plan that has two streams but on descriptor per stream)'''
+    md = {**_md, **{'test_plan_name': 'multi_stream_one_descriptor_plan'}}
     @bluesky.preprocessors.baseline_decorator(dets)
     def _plan(dets):
-        yield from count(dets)
+        yield from count(dets, md=md)
 
     yield from _plan(dets)
 
 
 def one_stream_multi_descriptors_plan(dets):
     '''A plan that has one stream but two descriptors per stream)'''
-    @bluesky.preprocessors.run_decorator()
+    md = {**_md, **{'test_plan_name': 'simple_plan'}}
+    @bluesky.preprocessors.run_decorator(md=md)
     def _internal_plan(dets):
         yield from trigger_and_read(dets)
         for det in dets:
