@@ -25,14 +25,14 @@ def multi_stream_one_descriptor_plan(dets):
 
 def one_stream_multi_descriptors_plan(dets):
     '''A plan that has one stream but two descriptors per stream)'''
-    @bluesky.preprocessors.run_decorator
-    def _plan(dets):
+    @bluesky.preprocessors.run_decorator()
+    def _internal_plan(dets):
         yield from trigger_and_read(dets)
         for det in dets:
-            yield from configure(det)
+            yield from configure(det, {})
         yield from trigger_and_read(dets)
 
-    yield from _plan(dets)
+    yield from _internal_plan(dets)
 
 
 @pytest.fixture(params=[['det'], ['direct_img'], ['det', 'direct_img']],
