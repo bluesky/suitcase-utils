@@ -5,7 +5,7 @@ from bluesky.plan_stubs import trigger_and_read, configure
 import event_model # noqa
 from ophyd.tests.conftest import hw # noqa
 import pytest # noqa
-from . import UnknownEventType # noqa
+from .. import UnknownEventType # noqa
 import warnings
 
 # This line is used to ignore the deprecation warning for bulk_events in tests
