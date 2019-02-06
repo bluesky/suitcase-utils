@@ -73,4 +73,10 @@ def test_memory_buffers_basic_operation():
 
 
 def test_fixture(example_data):
+    "Just exercise the example_data test fixture."
     assert type(example_data()) is list
+
+
+def test_fixture_with_ignore(example_data):
+    "Exercise the example_data 'ignore' argument that skip some parameters."
+    assert type(example_data(ignore=['bulk_events'])) is list
