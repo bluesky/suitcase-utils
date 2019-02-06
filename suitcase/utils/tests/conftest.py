@@ -1,29 +1,33 @@
-import bluesky # noqa
+import bluesky
 from bluesky.tests.conftest import RE # noqa
-from bluesky.plans import count # noqa
+from bluesky.plans import count
 from bluesky.plan_stubs import trigger_and_read, configure
-import event_model # noqa
+import event_model
 from ophyd.tests.conftest import hw # noqa
-import pytest # noqa
-from .. import UnknownEventType # noqa
+import pytest
+from .. import UnknownEventType
 import warnings
 
 # This line is used to ignore the deprecation warning for bulk_events in tests
 warnings.filterwarnings("ignore", message="The document type 'bulk_events'*")
 
 
-_md = { 'reason': 'test', 'user': 'temp user', 'beamline': 'test_beamline'}
+_md = {'reason': 'test', 'user': 'temp user', 'beamline': 'test_beamline'}
+
 
 # Some useful plans for use in testing
+
+
 def simple_plan(dets):
     '''A simple plane which runs count with num=5'''
     md = {**_md, **{'test_plan_name': 'simple_plan'}}
-    yield from count(dets, num=5, md = md)
+    yield from count(dets, num=5, md=md)
 
 
 def multi_stream_one_descriptor_plan(dets):
     '''A plan that has two streams but on descriptor per stream)'''
     md = {**_md, **{'test_plan_name': 'multi_stream_one_descriptor_plan'}}
+
     @bluesky.preprocessors.baseline_decorator(dets)
     def _plan(dets):
         yield from count(dets, md=md)
@@ -34,6 +38,7 @@ def multi_stream_one_descriptor_plan(dets):
 def one_stream_multi_descriptors_plan(dets):
     '''A plan that has one stream but two descriptors per stream)'''
     md = {**_md, **{'test_plan_name': 'simple_plan'}}
+
     @bluesky.preprocessors.run_decorator(md=md)
     def _internal_plan(dets):
         yield from trigger_and_read(dets)
@@ -44,7 +49,7 @@ def one_stream_multi_descriptors_plan(dets):
     yield from _internal_plan(dets)
 
 
-@pytest.fixture(params=['det', 'direct_img', 'det direct_img'],
+@pytest.fixture(params=['det', 'direct_img', 'det direct_img'],  # noqa
                 scope='function')
 def detector_list(hw, request):
 
@@ -64,7 +69,7 @@ def event_type(request):
     def _event_type_func(ignore):
         if request.param in ignore:
             pytest.skip
-        return  request.param
+        return request.param
 
     return _event_type_func
 
@@ -76,12 +81,12 @@ def plan_type(request):
     def _plan_type_func(ignore):
         if request.param in ignore:
             pytest.skip
-        return  request.param
+        return request.param
 
     return _plan_type_func
 
 
-@pytest.fixture()
+@pytest.fixture()  # noqa
 def generate_data(RE, detector_list, event_type):
     '''A fixture that returns event data for a number of test cases.
 
