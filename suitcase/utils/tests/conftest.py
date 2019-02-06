@@ -55,7 +55,7 @@ def detector_list(hw, request):  # noqa
 
     def _det_list_func(ignore):
         if request.param in ignore:
-            pytest.skip
+            pytest.skip()
         dets = [getattr(hw, det_name) for det_name in request.param.split(' ')]
         return dets
 
@@ -68,7 +68,7 @@ def event_type(request):
 
     def _event_type_func(ignore):
         if request.param in ignore:
-            pytest.skip
+            pytest.skip()
         return request.param
 
     return _event_type_func
@@ -80,7 +80,7 @@ def event_type(request):
 def plan_type(request):
     def _plan_type_func(ignore):
         if request.param in ignore:
-            pytest.skip
+            pytest.skip()
         return request.param
 
     return _plan_type_func
