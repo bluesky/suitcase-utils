@@ -104,7 +104,7 @@ def generate_data(RE, detector_list, event_type):
         list of 'event_types'.
     '''
 
-    def _generate_data_func(plan, ignore = []):
+    def _generate_data_func(plan, ignore=None):
         '''Generates data to be used for testing of suitcase.*.export(..)
         functions
 
@@ -119,6 +119,8 @@ def generate_data(RE, detector_list, event_type):
         ignore : list, optional
             list of the pytest.fixture parameter 'values' to ignore.
         '''
+        if ignore is None:
+            ignore = []
 
         # define the output lists and an internal list.
         collector = []
