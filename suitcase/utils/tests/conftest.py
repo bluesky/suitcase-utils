@@ -180,11 +180,10 @@ def example_data(generate_data, plan_type):
         test suite here will be automatically applied to all ``suitcase-*``
         repos. Some important implementation notes:
 
-        1. In order for the tests to pass you will need to include the
-        following lines to the `suitcase-*\suitcase\*\conftest.py` file.
-            ``from suitcase.utils.conftest import (example_data, generate_data,
-                                                   detector_list, event_type,
-                                                   plan_type)  # noqa``
+        1. These fixtures are imported into other suitcase libraries via those
+        libraries' ``conftest.py`` file. This is automatically set up by
+        suitcases-cookiecutter, and no additional action is required.
+
         2. If any of the parameters from the fixtures above are not valid for
         the suitcase you are designing and cause testing issues please skip
         them internally by adding them to the ``ignore`` kwarg list via the
