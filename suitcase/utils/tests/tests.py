@@ -70,3 +70,7 @@ def test_memory_buffers_basic_operation():
     actual = f.read()
     assert actual == 'test'
     assert [f] == manager.artifacts['thing']
+
+
+def test_fixture(example_data):
+    assert type(example_data()) is list
