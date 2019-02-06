@@ -49,9 +49,9 @@ def one_stream_multi_descriptors_plan(dets):
     yield from _internal_plan(dets)
 
 
-@pytest.fixture(params=['det', 'direct_img', 'det direct_img'],  # noqa
+@pytest.fixture(params=['det', 'direct_img', 'det direct_img'],
                 scope='function')
-def detector_list(hw, request):
+def detector_list(hw, request):  # noqa
 
     def _det_list_func(ignore):
         if request.param in ignore:
@@ -86,8 +86,8 @@ def plan_type(request):
     return _plan_type_func
 
 
-@pytest.fixture()  # noqa
-def generate_data(RE, detector_list, event_type):
+@pytest.fixture()
+def generate_data(RE, detector_list, event_type):  # noqa
     '''A fixture that returns event data for a number of test cases.
 
     Returns a list of (name, doc) tuples for the plan passed in as an arg.
