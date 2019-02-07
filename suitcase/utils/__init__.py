@@ -1,5 +1,4 @@
 import collections
-import errno
 import io
 import os
 from pathlib import Path
@@ -66,7 +65,11 @@ class MultiFileManager:
         Returns
         -------
         name : Path
+<<<<<<< HEAD
          """
+=======
+        """
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
         if Path(postfix).is_absolute():
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix!r} must be structured like a relative "
@@ -99,12 +102,17 @@ class MultiFileManager:
         errors : string or None
             Passed through to open. See Python open documentation for allowed
             values.
+<<<<<<< HEAD
+=======
+
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
         Returns
         -------
         file : handle
         """
         filepath = self.reserve_name(label, postfix)
         # create the directories if they don't yet exist
+<<<<<<< HEAD
         if not os.path.exists(os.path.dirname(filepath)):
             try:
                 os.makedirs(os.path.dirname(filepath))
@@ -115,21 +123,36 @@ class MultiFileManager:
         if mode not in ['x', 'xt', 'xb']:
             raise ModeError(
                 f'the mode passed to MultiFileWrapper.open is {mode} but needs'
+=======
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+        if mode not in ['x', 'xt', 'xb']:
+            raise ModeError(
+                f'the mode passed to MultiFileManager.open is {mode} but needs'
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
                 ' to be one of "x", "xt" or "xb"')
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
         self._files.append(f)
         return f
 
     def close(self):
+<<<<<<< HEAD
         '''close all files open by the manager
+=======
+        '''close all files opened by the manager
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
         '''
         for f in self._files:
             f.close()
 
 
 class PersistentStringIO(io.StringIO):
+<<<<<<< HEAD
     ''' A StringIO that does not clear the buffer when closed or excited from
     context.
+=======
+    ''' A StringIO that does not clear the buffer when closed.
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
 
         .. note::
 
@@ -137,6 +160,7 @@ class PersistentStringIO(io.StringIO):
             close() method, which would normally clear the buffer, has no
             effect. The clear() method, however, may still be used.
     '''
+<<<<<<< HEAD
     def close():
         pass  # this avoids closing the file handle too early.
 
@@ -144,6 +168,15 @@ class PersistentStringIO(io.StringIO):
 class PersistentBytesIO(io.BytesIO):
     ''' A BytesIO that does not clear the buffer when closed or exited from
     context.
+=======
+    def close(self):
+        # Avoid clearing the buffer before caller of ``export`` can access it.
+        pass
+
+
+class PersistentBytesIO(io.BytesIO):
+    ''' A BytesIO that does not clear the buffer when closed.
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
 
         .. note::
 
@@ -151,8 +184,14 @@ class PersistentBytesIO(io.BytesIO):
             close() method, which would normally clear the buffer, has no
             effect. The clear() method, however, may still be used.
     '''
+<<<<<<< HEAD
     def close():
         pass  # this avoids closing the file handle too early.
+=======
+    def close(self):
+        # Avoid clearing the buffer before caller of ``export`` can access it.
+        pass
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
 
 
 class MemoryBuffersManager:
@@ -190,9 +229,15 @@ class MemoryBuffersManager:
         Returns
         ----------
         filepath : Path
+<<<<<<< HEAD
          """
         raise SuitcaseUtilsTypeError(
             "MemoryBuffersWrapper is incompatible with exporters that require "
+=======
+        """
+        raise SuitcaseUtilsTypeError(
+            "MemoryBuffersManager is incompatible with exporters that require "
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
             "explicit filenames.")
 
     def open(self, label, postfix, mode, encoding=None, errors=None):
@@ -214,36 +259,63 @@ class MemoryBuffersManager:
         errors : string or None
             Not used. Accepted for compatibility with built-in open().
 
+<<<<<<< HEAD
        Returns
        -------
        file : handle
+=======
+        Returns
+        -------
+        file : handle
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
         """
         # Of course, in-memory buffers have no filepath, but we still expect
         # postfix to be a thing that looks like a relative filepath, and we use
         # it as a unique identifier for a given buffer.
         if Path(postfix).is_absolute():
             raise SuitcaseUtilsValueError(
+<<<<<<< HEAD
                 f"{postfix} must be structured like a relative file path.")
+=======
+                f"The postfix {postfix} must be structured like a relative "
+                f"file path.")
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
         name = Path(postfix).expanduser().resolve()
         if name in self._reserved_names:
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix!r} has already been used.")
         self._reserved_names.add(name)
+<<<<<<< HEAD
         self._artifacts[label].append(name)
+=======
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
         if mode in ('x', 'xt'):
             buffer = PersistentStringIO()
         elif mode == 'xb':
             buffer = PersistentBytesIO()
         else:
             raise ModeError(
+<<<<<<< HEAD
                 f'the mode passed to MemoryBuffersWrapper.open is {mode} but '
                 'needs to be one of "x", "xt" or "xb"')
+=======
+                f"The mode passed to MemoryBuffersManager.open is {mode} but "
+                f"needs to be one of 'x', 'xt' or 'xb'.")
+        self._artifacts[label].append(buffer)
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
         self.buffers[postfix] = buffer
         return buffer
 
     def close(self):
+<<<<<<< HEAD
         '''close all files open by the manager
         '''
         for buffer in self.buffers.values():
             buffer.clear()
         # Note: .clear() is used not .close(), see Persistent*IO defn. above
+=======
+        '''Close all buffers opened by the manager.
+        '''
+        for f in self.buffers.values():
+            f.close()
+>>>>>>> ccb1ced23ad740f7c7c0e9a5a312643f125c1599
