@@ -37,6 +37,7 @@ extras_require = {
                       'git+git://github.com/NSLS-II/event-model@master']
 }
 
+extras_require['complete'] = sorted(set(sum(extras_require.values(), [])))
 
 setup(
     name='suitcase-utils',
