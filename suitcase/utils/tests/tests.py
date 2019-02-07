@@ -43,9 +43,8 @@ def test_memory_buffers_basic_operation():
     manager = MemoryBuffersManager()
     f = manager.open('thing', 'stuff', 'x')
 
-    # Check that reserve_name fails explicitly on MemoryBuffersManager.
-    with pytest.raises(SuitcaseUtilsTypeError):
-        manager.reserve_name('thing', 'stuff')
+    # Check that reserve_name is not defined on MemoryBuffersManager.
+    assert not hasattr(manager, 'reserve_name')
 
     # Check that name clashes are not allowed.
     with pytest.raises(SuitcaseUtilsValueError):
