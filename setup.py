@@ -32,6 +32,12 @@ with open(path.join(here, 'requirements.txt')) as requirements_file:
                     if not line.startswith('#')]
 
 
+extras_require = {
+    'test fixtures': ['caproto', 'curio', 'pytest >=3.9', 'trio'
+                      'git+git://github.com/NSLS-II/event-model@master']
+}
+
+
 setup(
     name='suitcase-utils',
     version=versioneer.get_version(),
@@ -58,4 +64,5 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
     ],
+    extras_require=extras_require
 )
