@@ -39,14 +39,10 @@ class MultiFileManager:
     This design is inspired by Python's zipfile and tarfile libraries.
     """
     def __init__(self, directory):
+        self.artifacts = collections.defaultdict(list)
         self._directory = Path(directory)
         self._reserved_names = set()
-        self._artifacts = collections.defaultdict(list)
         self._files = []
-
-    @property
-    def artifacts(self):
-        return dict(self._artifacts)
 
     def reserve_name(self, label, postfix):
         """
@@ -75,7 +71,7 @@ class MultiFileManager:
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix!r} has already been used.")
         self._reserved_names.add(name)
-        self._artifacts[label].append(name)
+        self.artifacts[label].append(name)
         return name
 
     def open(self, label, postfix, mode, encoding=None, errors=None):
@@ -160,35 +156,9 @@ class MemoryBuffersManager:
     buffers created.
     """
     def __init__(self):
+        self.artifacts = collections.defaultdict(list)
         self._reserved_names = set()
-        self._artifacts = collections.defaultdict(list)
         self.buffers = {}  # maps postfixes to buffer objects
-
-    @property
-    def artifacts(self):
-        return dict(self. _artifacts)
-
-    def reserve_name(self, label, postfix):
-        """
-        Ask the wrapper for a filepath.
-
-        An external library that needs a filepath (not a handle)
-        may use this instead of the ``open`` method.
-
-        Parameters
-        -------
-        label : string
-            partial file name (i.e. stream name)
-        postfix : string
-            relative file path and filename
-
-        Returns
-        ----------
-        filepath : Path
-        """
-        raise SuitcaseUtilsTypeError(
-            "MemoryBuffersManager is incompatible with exporters that require "
-            "explicit filenames.")
 
     def open(self, label, postfix, mode, encoding=None, errors=None):
         """
@@ -233,7 +203,7 @@ class MemoryBuffersManager:
             raise ModeError(
                 f"The mode passed to MemoryBuffersManager.open is {mode} but "
                 f"needs to be one of 'x', 'xt' or 'xb'.")
-        self._artifacts[label].append(buffer)
+        self.artifacts[label].append(buffer)
         self.buffers[postfix] = buffer
         return buffer
 
