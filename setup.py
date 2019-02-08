@@ -33,8 +33,8 @@ with open(path.join(here, 'requirements.txt')) as requirements_file:
 
 
 extras_require = {
-    'test fixtures': ['caproto', 'curio', 'pytest >=3.9', 'trio'
-                      'git+git://github.com/NSLS-II/event-model@master']
+    'test fixtures': ['attrs >= 18.1.0', 'caproto', 'curio', 'pytest >=3.9',
+                      'trio']
 }
 
 extras_require['complete'] = sorted(set(sum(extras_require.values(), [])))
