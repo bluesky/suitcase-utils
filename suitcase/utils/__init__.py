@@ -31,8 +31,8 @@ class MultiFileManager:
     """
     A class that manages multiple files.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     directory : str or Path
         The directory (as a string or as a Path) to create teh files inside.
 
@@ -58,9 +58,10 @@ class MultiFileManager:
         Parameters
         ----------
         label : string
-            partial file name (i.e. stream name)
+            A label for the sort of content being stored, such as
+            'stream_data' or 'metadata'.
         postfix : string
-            relative file path and filename
+            Postfix for the file name. Must be unique for this Manager.
 
         Returns
         -------
@@ -85,15 +86,16 @@ class MultiFileManager:
         Like the built-in open function, this may be used as a context manager.
 
         Parameters
-        -------
+        ----------
         label : string
-            partial file name (i.e. stream name)
+            A label for the sort of content being stored, such as
+            'stream_data' or 'metadata'.
         postfix : string
-            postfix for the filenames.
+            Postfix for the file name. Must be unique for this Manager.
         mode : {'x', 'xt', xb'}
             'x' or 'xt' for text, 'xb' for binary
         encoding : string or None
-            Passed through open.  See Python open documentation for allowed
+            Passed through open. See Python open documentation for allowed
             values. Only applicable to text mode.
         errors : string or None
             Passed through to open. See Python open documentation for allowed
@@ -170,21 +172,19 @@ class MemoryBuffersManager:
 
     def reserve_name(self, label, postfix):
         """
-        Ask the wrapper for a filepath.
-
-        An external library that needs a filepath (not a handle)
-        may use this instead of the ``open`` method.
+        This action is not valid on this manager. It will always raise.
 
         Parameters
-        -------
-        label : string
-            partial file name (i.e. stream name)
-        postfix : string
-            relative file path and filename
-
-        Returns
         ----------
-        filepath : Path
+        label : string
+            A label for the sort of content being stored, such as
+            'stream_data' or 'metadata'.
+        postfix : string
+            Relative file path. Must be unique for this Manager.
+
+        Raises
+        ------
+        SuitcaseUtilsTypeError
         """
         raise SuitcaseUtilsTypeError(
             "MemoryBuffersManager is incompatible with exporters that require "
@@ -197,11 +197,13 @@ class MemoryBuffersManager:
         Like the built-in open function, this may be used as a context manager.
 
         Parameters
-        -------
+        ----------
         label : string
-            partial file name (i.e. stream name)
+            A label for the sort of content being stored, such as
+            'stream_data' or 'metadata'.
         postfix : string
-            relative file path and filename
+            Relative file path (simply used as an identifer in this case, as
+            there is no actual file). Must be unique for this Manager.
         mode : {'x', 'xt', xb'}
             'x' or 'xt' for text, 'xb' for binary
         encoding : string or None
