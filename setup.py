@@ -32,6 +32,13 @@ with open(path.join(here, 'requirements.txt')) as requirements_file:
                     if not line.startswith('#')]
 
 
+extras_require = {
+    'test_fixtures': ['attrs >= 18.1.0', 'caproto', 'curio', 'pytest >=3.9',
+                      'trio']
+}
+
+extras_require['complete'] = sorted(set(sum(extras_require.values(), [])))
+
 setup(
     name='suitcase-utils',
     version=versioneer.get_version(),
@@ -58,4 +65,5 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
     ],
+    extras_require=extras_require
 )
