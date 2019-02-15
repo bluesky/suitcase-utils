@@ -50,7 +50,7 @@ def one_stream_multi_descriptors_plan(dets):
 
 
 @pytest.fixture(params=['det', 'direct_img', 'direct_img_list',
-                        'det direct_img'],
+                        'det direct_img direct_img_list'],
                 scope='function')
 def detector_list(hw, request):  # noqa
 
