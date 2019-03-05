@@ -35,6 +35,13 @@ class MultiFileManager:
     ----------
     directory : str or Path
         The directory (as a string or as a Path) to create teh files inside.
+    allowed_modes : Iterable
+        Modes accepted by ``MultiFileManager.open``. By default this is
+        retricted to "exclusive creation" modes ('x', 'xt', 'xb') which raise
+        an error if the file already exists. This choice of defaults is meant
+        to protect the user for unintentionally overwriting old files. In
+        situations where overwrite ('w', 'wb') or append ('a', 'r+b') are
+        needed, they can be added here.
 
     This design is inspired by Python's zipfile and tarfile libraries.
     """
