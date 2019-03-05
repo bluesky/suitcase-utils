@@ -38,11 +38,12 @@ class MultiFileManager:
 
     This design is inspired by Python's zipfile and tarfile libraries.
     """
-    def __init__(self, directory):
+    def __init__(self, directory, allowed_modes=('x', 'xt', 'xb')):
         self._directory = Path(directory)
         self._reserved_names = set()
         self._artifacts = collections.defaultdict(list)
         self._files = []
+        self._allowed_modes = set(allowed_modes)
 
     @property
     def artifacts(self):
@@ -92,8 +93,10 @@ class MultiFileManager:
             'stream_data' or 'metadata'.
         postfix : string
             Postfix for the file name. Must be unique for this Manager.
-        mode : {'x', 'xt', xb'}
-            'x' or 'xt' for text, 'xb' for binary
+        mode : string
+            One of the ``allowed_modes`` set in __init__``. Default set of
+            options is ``{'x', 'xt', xb'}`` --- 'x' or 'xt' for text, 'xb' for
+            binary.
         encoding : string or None
             Passed through open. See Python open documentation for allowed
             values. Only applicable to text mode.
@@ -109,10 +112,10 @@ class MultiFileManager:
         # create the directories if they don't yet exist
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-        if mode not in ['x', 'xt', 'xb']:
+        if mode not in self._allowed_modes:
             raise ModeError(
-                f'the mode passed to MultiFileManager.open is {mode} but needs'
-                ' to be one of "x", "xt" or "xb"')
+                f'The mode passed to MultiFileManager.open is {mode} but needs '
+                f'to be one of {self._allowed_modes}')
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
         self._files.append(f)
         return f
