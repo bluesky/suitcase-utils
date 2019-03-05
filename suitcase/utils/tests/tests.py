@@ -38,6 +38,16 @@ def test_multifile_basic_operation(tmp_path):
     assert actual == 'test'
     assert [name1, name2] == manager.artifacts['thing']
 
+    # Test append.
+    manager = MultiFileManager(tmp_path)
+    with manager.open('test_append', 'test_append', 'x') as f:
+        f.write('line1\n')
+    manager = MultiFileManager(tmp_path, allowed_modes=('a',))
+    with manager.open('test_append', 'test_append', 'a') as f:
+        f.write('line2\n')
+    with open(tmp_path / 'test_append') as f:
+        assert f.read().splitlines() == ['line1', 'line2']
+
 
 def test_memory_buffers_basic_operation():
     manager = MemoryBuffersManager()
