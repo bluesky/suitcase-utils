@@ -115,14 +115,12 @@ class MultiFileManager:
         -------
         file : handle
         """
-        filepath = self.reserve_name(label, postfix)
-        # create the directories if they don't yet exist
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-
         if mode not in self._allowed_modes:
             raise ModeError(
                 f'The mode passed to MultiFileManager.open is {mode} but needs '
                 f'to be one of {self._allowed_modes}')
+        filepath = self.reserve_name(label, postfix)
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
         self._files.append(f)
         return f
