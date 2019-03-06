@@ -1,6 +1,6 @@
 # suitcase.utils
 
-This is a suitcase subpackage for reading a particular file format.
+This is a package of utility functions and test fixtures for suitcase packages.
 
 ## Installation
 
