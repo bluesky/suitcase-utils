@@ -141,9 +141,8 @@ class PersistentStringIO(io.StringIO):
             close() method, which would normally clear the buffer, has no
             effect. The clear() method, however, may still be used.
     '''
-    def close(self):
-        # Avoid clearing the buffer before caller of ``export`` can access it.
-        pass
+    def close():
+        pass  # this avoids closing the file handle too early.
 
 
 class PersistentBytesIO(io.BytesIO):
@@ -195,7 +194,7 @@ class MemoryBuffersManager:
         SuitcaseUtilsTypeError
         """
         raise SuitcaseUtilsTypeError(
-            "MemoryBuffersManager is incompatible with exporters that require "
+            "MemoryBuffersWrapper is incompatible with exporters that require "
             "explicit filenames.")
 
     def open(self, label, postfix, mode, encoding=None, errors=None):
