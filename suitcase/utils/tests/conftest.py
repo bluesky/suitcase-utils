@@ -216,7 +216,7 @@ def example_data(generate_data, plan_type):
 @pytest.fixture(params=['test-', 'scan_{uid}-'],
                 scope='function')
 def file_prefix_list(request):  # noqa
-    '''Returns a list file_prefixes to be formatted for testing.
+    '''Returns a function that provides file_prefixes for testing.
     '''
 
     def _file_prefix_list_func(ignore=[]):
@@ -230,7 +230,7 @@ def file_prefix_list(request):  # noqa
 @pytest.fixture(params=['', '/test', '/scan_{uid}'],
                 scope='function')
 def directory_list(request):  # noqa
-    '''Returns a list of directories to be formatted for testing.
+    '''Returns a function that provides directories for testing.
     '''
     def _directory_list_func(ignore=[]):
         if request.param in ignore:
