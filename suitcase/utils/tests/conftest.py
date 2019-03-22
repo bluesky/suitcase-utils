@@ -211,3 +211,30 @@ def example_data(generate_data, plan_type):
         return generate_data(plan_type(ignore), ignore=ignore)
 
     return _example_data_func
+
+
+@pytest.fixture(params=['test-', 'scan_{uid}-'],
+                scope='function')
+def file_prefix_list(request):  # noqa
+    '''Returns a function that provides file_prefixes for testing.
+    '''
+
+    def _file_prefix_list_func(ignore=[]):
+        if request.param in ignore:
+            pytest.skip()
+        return request.param
+
+    return _file_prefix_list_func
+
+
+@pytest.fixture(params=['', '/test', '/scan_{uid}'],
+                scope='function')
+def directory_list(request):  # noqa
+    '''Returns a function that provides directories for testing.
+    '''
+    def _directory_list_func(ignore=[]):
+        if request.param in ignore:
+            pytest.skip()
+        return request.param
+
+    return _directory_list_func
