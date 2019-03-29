@@ -5,8 +5,7 @@ caproto  # required in order to import ophyd test fixtures
 curio  # required in order to import ophyd test fixtures
 codecov
 coverage
-# TEMPORARY UNTIL event-model 1.8.0 is released
-git+git://github.com/NSLS-II/event-model@master
+git+git://github.com/NSLS-II/event-model
 flake8
 # TEMPORARY UNTIL https://github.com/NSLS-II/ophyd/pull/682 IS RELEASED
 git+git://github.com/awalter-bnl/ophyd@add-configure
