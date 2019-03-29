@@ -8,7 +8,7 @@ coverage
 git+git://github.com/NSLS-II/event-model
 flake8
 # TEMPORARY UNTIL https://github.com/NSLS-II/ophyd/pull/682 IS RELEASED
-git+git://github.com/awalter-bnl/ophyd@add-configure
+git+git://github.com/NSLS-II/ophyd@ophyd-for-suitcase-utils
 pytest >=3.9
 sphinx
 # These are dependencies of various sphinx extensions for documentation.
