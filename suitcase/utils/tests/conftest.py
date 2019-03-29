@@ -225,16 +225,3 @@ def file_prefix_list(request):  # noqa
         return request.param
 
     return _file_prefix_list_func
-
-
-@pytest.fixture(params=['', '/test', '/scan_{uid}'],
-                scope='function')
-def directory_list(request):  # noqa
-    '''Returns a function that provides directories for testing.
-    '''
-    def _directory_list_func(ignore=[]):
-        if request.param in ignore:
-            pytest.skip()
-        return request.param
-
-    return _directory_list_func
