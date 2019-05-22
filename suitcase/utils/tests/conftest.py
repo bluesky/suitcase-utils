@@ -213,7 +213,7 @@ def example_data(generate_data, plan_type):
     return _example_data_func
 
 
-@pytest.fixture(params=['test-', 'scan_{uid}-'],
+@pytest.fixture(params=['test-', 'scan_{start[uid]}-'],
                 scope='function')
 def file_prefix_list(request):  # noqa
     '''Returns a function that provides file_prefixes for testing.
