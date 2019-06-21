@@ -188,7 +188,12 @@ def example_data(generate_data, plan_type):
         2. If any of the parameters from the fixtures above are not valid for
         the suitcase you are designing and cause testing issues please skip
         them internally by adding them to the ``ignore`` kwarg list via the
-        line ``collector = example_data(ignore=[param_to_ignore, ...])``.
+        line ``collector = example_data(ignore=[param_to_ignore, ...])``. Take
+        note ``param_to_ignore`` is the exact parameter, i.e. in case you want
+        to ignore the tests against ``simple_plan`` in ``plan_type``
+        ``param_to_ignore`` must actually be the function, not a string
+        reference, which will need to be imported using:
+        ``from suitcase.utils.tests.conftest import simple_plan``
 
     Parameters
     ----------
