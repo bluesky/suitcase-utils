@@ -79,7 +79,9 @@ def event_type(request):
                         one_stream_multi_descriptors_plan],
                 scope='function')
 def plan_type(request):
-    def _plan_type_func(ignore):
+    def _plan_type_func(ignore=None):
+        if ignore is None:
+            ignore = []
         if request.param in ignore:
             pytest.skip()
         return request.param
@@ -209,7 +211,7 @@ def example_data(generate_data, plan_type):
         list of 'plans' to test against.
     '''
 
-    def _example_data_func(ignore=[], md={}):
+    def _example_data_func(ignore=None, md=None):
         '''returns a list of (name, doc) tuples for a number of test cases
 
         ignore : list optional
@@ -231,7 +233,9 @@ def file_prefix_list(request):  # noqa
     '''Returns a function that provides file_prefixes for testing.
     '''
 
-    def _file_prefix_list_func(ignore=[]):
+    def _file_prefix_list_func(ignore=None):
+        if ignore is None:
+            ignore = []
         if request.param in ignore:
             pytest.skip()
         return request.param
