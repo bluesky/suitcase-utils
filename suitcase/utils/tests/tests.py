@@ -100,4 +100,3 @@ def test_fixture_with_md(example_data):
     name, document = document_stream[0]
     assert name == 'start'
     assert document['md']['user'] == 'Dan'
-
