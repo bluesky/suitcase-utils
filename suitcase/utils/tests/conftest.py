@@ -105,7 +105,7 @@ def generate_data(RE, detector_list, event_type):  # noqa
         list of 'event_types'.
     '''
 
-    def _generate_data_func(plan, ignore=None, md={}):
+    def _generate_data_func(plan, ignore=None, md=None):
         '''Generates data to be used for testing of suitcase.*.export(..)
         functions
 
@@ -124,6 +124,8 @@ def generate_data(RE, detector_list, event_type):  # noqa
         '''
         if ignore is None:
             ignore = []
+        if md is None:
+            md = {}
 
         # define the output lists and an internal list.
         collector = []
