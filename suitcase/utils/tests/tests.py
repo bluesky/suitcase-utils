@@ -94,4 +94,6 @@ def test_fixture_with_ignore(example_data):
 
 def test_fixture_with_md(example_data):
     "Exercise the example_data 'md' argument that is passed to the RunEngine."
-    assert type(example_data(md={'user': 'Dan'})) is list
+    documents = example_data(md={'user': 'Dan'})
+    assert type(documents) is list
+    assert dict(documents)['start']['md']['user'] == 'Dan'
