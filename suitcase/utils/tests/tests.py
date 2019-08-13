@@ -88,7 +88,10 @@ def test_fixture(example_data):
 
 
 def test_fixture_with_skip_tests_with(example_data):
-    "Exercise the example_data 'ignore' argument that skips some parameters."
+    """
+    Exercise the example_data 'skip_tests_with' argument that skips
+    tests having the specified test parameters.
+    """
     assert type(example_data(skip_tests_with=['bulk_events'])) is list
 
 
