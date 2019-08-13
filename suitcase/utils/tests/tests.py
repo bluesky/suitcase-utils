@@ -87,9 +87,9 @@ def test_fixture(example_data):
     assert type(example_data()) is list
 
 
-def test_fixture_with_ignore(example_data):
+def test_fixture_with_skip_tests_with(example_data):
     "Exercise the example_data 'ignore' argument that skips some parameters."
-    assert type(example_data(ignore=['bulk_events'])) is list
+    assert type(example_data(skip_tests_with=['bulk_events'])) is list
 
 
 def test_fixture_with_md(example_data):
