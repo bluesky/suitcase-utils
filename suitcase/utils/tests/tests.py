@@ -87,6 +87,19 @@ def test_fixture(example_data):
     assert type(example_data()) is list
 
 
-def test_fixture_with_ignore(example_data):
-    "Exercise the example_data 'ignore' argument that skip some parameters."
-    assert type(example_data(ignore=['bulk_events'])) is list
+def test_fixture_with_skip_tests_with(example_data):
+    """
+    Exercise the example_data 'skip_tests_with' argument that skips
+    tests having the specified test parameters.
+    """
+    assert type(example_data(skip_tests_with=['bulk_events'])) is list
+
+
+def test_fixture_with_md(example_data):
+    "Exercise the example_data 'md' argument that is passed to the RunEngine."
+    document_stream = example_data(md={'user': 'Dan'})
+    assert type(document_stream) is list
+
+    name, document = document_stream[0]
+    assert name == 'start'
+    assert document['md']['user'] == 'Dan'

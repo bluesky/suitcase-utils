@@ -117,8 +117,8 @@ class MultiFileManager:
         """
         if mode not in self._allowed_modes:
             raise ModeError(
-                f'The mode passed to MultiFileManager.open is {mode} but needs '
-                f'to be one of {self._allowed_modes}')
+                f'The mode passed to MultiFileManager.open is {mode} but '
+                f'needs to be one of {self._allowed_modes}')
         filepath = self.reserve_name(label, postfix)
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
