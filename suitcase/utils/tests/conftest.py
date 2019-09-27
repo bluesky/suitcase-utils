@@ -252,8 +252,7 @@ def generate_data(RE, detector_list, event_type):  # noqa
                                    'suitcase.utils.events_data')
 
         # collect the documents
-        RE.subscribe(collect)
-        RE(plan(detector_list(skip_tests_with)), md=md)
+        RE(plan(detector_list(skip_tests_with)), collect, md=md)
 
         return collector
 
