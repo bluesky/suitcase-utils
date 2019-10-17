@@ -1,16 +1,21 @@
 language: python
 python:
   - 3.6
+  - 3.7
 cache:
   directories:
     - $HOME/.cache/pip
     - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
 
 install:
+  # report the installed packages
+  - pip freeze
   # Install this package and the packages listed in requirements.txt.
   - pip install .
   # Install extra requirements for running tests and building docs.
   - pip install -r requirements-dev.txt
+  # report the installed packages
+  - pip freeze
 
 script:
   - coverage run -m pytest suitcase/utils/tests/tests.py  # Run the tests and check for test coverage.
