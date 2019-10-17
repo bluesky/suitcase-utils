@@ -8,6 +8,7 @@ cache:
     - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
 
 install:
+  - pip install --upgrade pytest
   # report the installed packages
   - pip freeze
   # Install this package and the packages listed in requirements.txt.
