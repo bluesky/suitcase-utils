@@ -33,7 +33,7 @@ with open(path.join(here, 'requirements.txt')) as requirements_file:
 
 
 extras_require = {
-    'test_fixtures': ['attrs >= 18.1.0', 'bluesky', 'caproto', 'curio',
+    'test_fixtures': ['attrs >= 19.3.0', 'bluesky', 'caproto', 'curio',
                       'ophyd', 'pytest >=3.9', 'trio']
 }
 
