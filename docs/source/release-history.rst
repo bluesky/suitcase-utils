@@ -2,6 +2,10 @@
 Release History
 ===============
 
+v0.5.1 (2019-10-21)
+----------------------------
++ Pin requirement attrs >= 19.3.0 to resolve a problem with continuous integration.
+
 v0.5.0 (2019-08-14)
 ----------------------------
 + Add metadata argument to generate_data test fixture.
