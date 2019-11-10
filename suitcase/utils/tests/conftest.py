@@ -1,32 +1,61 @@
 import bluesky
-from bluesky.tests.conftest import RE # noqa
+from bluesky.tests.conftest import RE  # noqa
 from bluesky.plans import count
 from bluesky.plan_stubs import trigger_and_read, configure
+from ophyd.sim import SynGauss, SynAxis
+import numpy as np
+
+try:
+    from ophyd.sim import DirectImage
+except ImportError:
+    from ophyd import Device, Component as Cpt
+    from ophyd.sim import SynSignal
+
+    class DirectImage(Device):
+        img = Cpt(SynSignal, kind="hinted")
+
+        def __init__(self, *args, func=None, **kwargs):
+            super().__init__(*args, **kwargs)
+            if func is not None:
+                self.img._func = func
+
+        def trigger(self):
+            return self.img.trigger()
+
+
 import event_model
-from ophyd.tests.conftest import hw # noqa
 import pytest
 from .. import UnknownEventType
 import warnings
+
+if not hasattr(SynGauss, "configure"):
+
+    class SynGauss(SynGauss):
+        def configure(self, d):
+            if d:
+                raise ValueError
+            return {}, {}
+
 
 # This line is used to ignore the deprecation warning for bulk_events in tests
 warnings.filterwarnings("ignore", message="The document type 'bulk_events'*")
 
 
-_md = {'reason': 'test', 'user': 'temp user', 'beamline': 'test_beamline'}
+_md = {"reason": "test", "user": "temp user", "beamline": "test_beamline"}
 
 
 # Some useful plans for use in testing
 
 
 def simple_plan(dets):
-    '''A simple plane which runs count with num=5'''
-    md = {**_md, **{'test_plan_name': 'simple_plan'}}
+    """A simple plane which runs count with num=5"""
+    md = {**_md, **{"test_plan_name": "simple_plan"}}
     yield from count(dets, num=5, md=md)
 
 
 def multi_stream_one_descriptor_plan(dets):
-    '''A plan that has two streams but on descriptor per stream)'''
-    md = {**_md, **{'test_plan_name': 'multi_stream_one_descriptor_plan'}}
+    """A plan that has two streams but on descriptor per stream)"""
+    md = {**_md, **{"test_plan_name": "multi_stream_one_descriptor_plan"}}
 
     @bluesky.preprocessors.baseline_decorator(dets)
     def _plan(dets):
@@ -49,24 +78,52 @@ def one_stream_multi_descriptors_plan(dets):
     yield from _internal_plan(dets)
 
 
-@pytest.fixture(params=['det', 'direct_img', 'direct_img_list',
-                        'det direct_img direct_img_list'],
-                scope='function')
-def detector_list(hw, request):  # noqa
-
-    def _det_list_func(ignore):
-        if request.param in ignore:
-            pytest.skip()
-        dets = [getattr(hw, det_name) for det_name in request.param.split(' ')]
-        return dets
-
-    return _det_list_func
+def _make_single(ignore):
+    if ignore:
+        pytest.skip()
+    motor = SynAxis(name="motor", labels={"motors"})
+    det = SynGauss(
+        "det", motor, "motor", center=0, Imax=1, sigma=1, labels={"detectors"}
+    )
+    return [det]
 
 
-@pytest.fixture(params=['event', 'bulk_events', 'event_page'],
-                scope='function')
+def _make_image(ignore):
+    if ignore:
+        pytest.skip()
+    direct_img = DirectImage(
+        func=lambda: np.array(np.ones((10, 10))), name="direct", labels={"detectors"}
+    )
+
+    return [direct_img]
+
+
+def _make_image_list(ignore):
+    if ignore:
+        pytest.skip()
+    direct_img_list = DirectImage(
+        func=lambda: [[1] * 10] * 10, name="direct", labels={"detectors"}
+    )
+    direct_img_list.img.name = "direct_img_list"
+
+    return [direct_img_list]
+
+
+@pytest.fixture(
+    params=[
+        _make_single,
+        _make_image,
+        _make_image_list,
+        lambda ignore: _make_image(ignore) + _make_image_list(ignore),
+    ],
+    scope="function",
+)
+def detector_list(request):  # noqa
+    return request.param
+
+
+@pytest.fixture(params=["event", "bulk_events", "event_page"], scope="function")
 def event_type(request):
-
     def _event_type_func(ignore):
         if request.param in ignore:
             pytest.skip()
@@ -195,8 +252,7 @@ def generate_data(RE, detector_list, event_type):  # noqa
                                    'suitcase.utils.events_data')
 
         # collect the documents
-        RE.subscribe(collect)
-        RE(plan(detector_list(skip_tests_with)), md=md)
+        RE(plan(detector_list(skip_tests_with)), collect, md=md)
 
         return collector
 
