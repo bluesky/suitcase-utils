@@ -2,6 +2,10 @@
 Release History
 ===============
 
+v0.5.3 (2019-11-10)
+----------------------------
++ Remove curio and trio from development requirements.
+
 v0.5.2 (2019-11-10)
 ----------------------------
 + Decouple suitcase-utils tests from ophyd.

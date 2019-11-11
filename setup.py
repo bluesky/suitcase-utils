@@ -33,8 +33,7 @@ with open(path.join(here, 'requirements.txt')) as requirements_file:
 
 
 extras_require = {
-    'test_fixtures': ['attrs >= 19.3.0', 'bluesky', 'caproto', 'curio',
-                      'ophyd', 'pytest >=3.9', 'trio']
+    'test_fixtures': ['bluesky', 'caproto', 'ophyd', 'pytest >=3.9']
 }
 
 extras_require['complete'] = sorted(set(sum(extras_require.values(), [])))
