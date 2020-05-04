@@ -77,6 +77,7 @@ def test_memory_buffers_basic_operation():
     assert not f.closed
     manager.close()
     assert not f.closed  # Close is a no-op on Persistent{String|Bytes}IO.
+    assert 4 == manager.estimated_sizes['stuff']
     f.seek(0)
     actual = f.read()
     assert actual == 'test'
