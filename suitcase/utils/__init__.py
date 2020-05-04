@@ -127,9 +127,8 @@ class MultiFileManager:
         filepath = self.reserve_name(label, postfix)
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-        # Wraps close() method of a handler to update out
+        # Wraps close() method of a handler to update our size estimate
         def update_size_on_close(handler):
-            # orig_close = getattr(handler, 'close')
             orig_close = handler.close
 
             def wrapped_close():
@@ -137,7 +136,6 @@ class MultiFileManager:
                 self._sizes[filepath] = handler.tell()
                 orig_close()
 
-            # setattr(handler, 'close', wrapped_close)
             handler.close = wrapped_close
             return handler
 
@@ -197,10 +195,15 @@ class MemoryBuffersManager:
         self._reserved_names = set()
         self._artifacts = collections.defaultdict(list)
         self.buffers = {}  # maps postfixes to buffer objects
+        self._sizes = {}
 
     @property
     def artifacts(self):
         return dict(self. _artifacts)
+
+    @property
+    def estimated_sizes(self):
+        return self._sizes
 
     def reserve_name(self, label, postfix):
         """
@@ -259,10 +262,22 @@ class MemoryBuffersManager:
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix!r} has already been used.")
         self._reserved_names.add(name)
+
+        # Wraps close() method of a handler to update our size estimate
+        # Also suppresses call to original close method to prevent buffer
+        # being cleared. You can still clear it using the clear() method.
+        def update_size_on_close(handler):
+            def wrapped_close():
+                handler.seek(0, os.SEEK_END)
+                self._sizes[postfix] = handler.tell()
+
+            handler.close = wrapped_close
+            return handler
+
         if mode in ('x', 'xt'):
-            buffer = PersistentStringIO()
+            buffer = update_size_on_close(io.StringIO())
         elif mode == 'xb':
-            buffer = PersistentBytesIO()
+            buffer = update_size_on_close(io.BytesIO())
         else:
             raise ModeError(
                 f"The mode passed to MemoryBuffersManager.open is {mode} but "
