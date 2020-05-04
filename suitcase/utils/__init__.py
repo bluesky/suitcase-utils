@@ -50,11 +50,16 @@ class MultiFileManager:
         self._reserved_names = set()
         self._artifacts = collections.defaultdict(list)
         self._files = []
+        self._sizes = {}
         self._allowed_modes = set(allowed_modes)
 
     @property
     def artifacts(self):
         return dict(self._artifacts)
+
+    @property
+    def estimated_sizes(self):
+        return self._sizes
 
     def reserve_name(self, label, postfix):
         """
@@ -121,8 +126,27 @@ class MultiFileManager:
                 f'needs to be one of {self._allowed_modes}')
         filepath = self.reserve_name(label, postfix)
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+        # Wraps close() method of a handler to update out
+        def update_size_on_close(handler):
+            # orig_close = getattr(handler, 'close')
+            orig_close = handler.close
+
+            def wrapped_close():
+                handler.seek(0, os.SEEK_END)
+                self._sizes[filepath] = handler.tell()
+                orig_close()
+
+            # setattr(handler, 'close', wrapped_close)
+            handler.close = wrapped_close
+            return handler
+
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
+        f = update_size_on_close(f)
+
+        self._sizes[filepath] = None
         self._files.append(f)
+
         return f
 
     def close(self):
