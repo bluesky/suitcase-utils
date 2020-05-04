@@ -154,34 +154,6 @@ class MultiFileManager:
             f.close()
 
 
-class PersistentStringIO(io.StringIO):
-    ''' A StringIO that does not clear the buffer when closed.
-
-        .. note::
-
-            This StringIO subclass behaves like StringIO except that its
-            close() method, which would normally clear the buffer, has no
-            effect. The clear() method, however, may still be used.
-    '''
-    def close(self):
-        # Avoid clearing the buffer before caller of ``export`` can access it.
-        pass
-
-
-class PersistentBytesIO(io.BytesIO):
-    ''' A BytesIO that does not clear the buffer when closed.
-
-        .. note::
-
-            This BytesIO subclass behaves like BytesIO except that its
-            close() method, which would normally clear the buffer, has no
-            effect. The clear() method, however, may still be used.
-    '''
-    def close(self):
-        # Avoid clearing the buffer before caller of ``export`` can access it.
-        pass
-
-
 class MemoryBuffersManager:
     """
     A class that manages multiple StringIO and/or BytesIO instances.
