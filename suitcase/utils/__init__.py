@@ -133,7 +133,7 @@ class MultiFileManager:
 
             def wrapped_close():
                 handler.seek(0, os.SEEK_END)
-                self._sizes[filepath] = handler.tell()
+                self._sizes[postfix] = handler.tell()
                 orig_close()
 
             handler.close = wrapped_close
@@ -142,7 +142,7 @@ class MultiFileManager:
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
         f = update_size_on_close(f)
 
-        self._sizes[filepath] = None
+        self._sizes[postfix] = None
         self._files.append(f)
 
         return f

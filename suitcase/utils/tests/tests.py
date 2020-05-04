@@ -33,7 +33,7 @@ def test_multifile_basic_operation(tmp_path):
     assert not f.closed
     manager.close()
     assert f.closed
-    assert 4 == manager.estimated_sizes[name1]
+    assert 4 == manager.estimated_sizes['stuff']
     with open(name1) as f:
         actual = f.read()
     assert actual == 'test'
