@@ -27,6 +27,65 @@ class UnknownEventType(SuitcaseUtilsError):
     ...
 
 
+class Artifact:
+    def __init__(self, label, postfix, name=None, handle=None):
+        self.label = label
+        self.postfix = postfix
+        self.name = name
+
+        self.initial_size = None
+        self._final_size = None
+        self._handle = None
+
+        if handle is not None:
+            self.handle = handle
+
+    def __iter__(self):
+        yield 'label', self.label
+        yield 'postfix', self.postfix
+        yield 'name', self.name
+        yield 'current_size', self.current_size
+        yield 'initial_size', self.initial_size
+        yield 'handle', self.handle
+
+    @property
+    def handle(self):
+        return self._handle
+
+    @handle.setter
+    def handle(self, val):
+        # Wraps close() method of a handler to update our size estimate
+        def update_size_on_close(handle):
+            orig_close = handle.close
+
+            def wrapped_close():
+                handle.seek(0, os.SEEK_END)
+                self._final_size = handle.tell()
+                orig_close()
+
+            handle.close = wrapped_close
+            return handle
+
+        self._handle = update_size_on_close(val)
+        self._final_size = None
+        self.initial_size = self.current_size
+
+    @property
+    def current_size(self):
+        if self.handle is None:
+            return None
+
+        if self._final_size is not None:
+            return self._final_size
+
+        orig_pos = self.handle.tell()
+        self.handle.seek(0, os.SEEK_END)
+        size = self.handle.tell()
+        self.handle.seek(orig_pos)
+
+        return size
+
+
 class MultiFileManager:
     """
     A class that manages multiple files.
@@ -47,19 +106,29 @@ class MultiFileManager:
     """
     def __init__(self, directory, allowed_modes=('x', 'xt', 'xb')):
         self._directory = Path(directory)
-        self._reserved_names = set()
-        self._artifacts = collections.defaultdict(list)
-        self._files = []
-        self._sizes = {}
         self._allowed_modes = set(allowed_modes)
+        self._artifacts = []
 
     @property
     def artifacts(self):
-        return dict(self._artifacts)
+        artifacts = collections.defaultdict(list)
+        for a in self._artifacts:
+            artifacts[a.label].append(a.name)
+        return dict(artifacts)
+
+    def get_artifacts(self, label=None):
+        return [dict(a) for a in self._artifacts
+                if label is None or a.label == label]
+
+    def get_artifact(self, postfix):
+        for a in self._artifacts:
+            if a.postfix == postfix:
+                return a
+        return None
 
     @property
     def estimated_sizes(self):
-        return self._sizes
+        return {a.postfix: a.current_size for a in self._artifacts}
 
     def reserve_name(self, label, postfix):
         """
@@ -84,12 +153,14 @@ class MultiFileManager:
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix!r} must be structured like a relative "
                 f"file path.")
+
+        # Checks for name instead of postfix to remove ambiguity via Path
         name = (self._directory / Path(postfix)).expanduser().resolve()
-        if name in self._reserved_names:
+        if name in [a.name for a in self._artifacts]:
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix!r} has already been used.")
-        self._reserved_names.add(name)
-        self._artifacts[label].append(name)
+
+        self._artifacts.append(Artifact(label, postfix, name))
         return name
 
     def open(self, label, postfix, mode, encoding=None, errors=None):
@@ -124,39 +195,30 @@ class MultiFileManager:
             raise ModeError(
                 f'The mode passed to MultiFileManager.open is {mode} but '
                 f'needs to be one of {self._allowed_modes}')
+
         filepath = self.reserve_name(label, postfix)
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-
-        # Wraps close() method of a handler to update our size estimate
-        def update_size_on_close(handler):
-            orig_close = handler.close
-
-            def wrapped_close():
-                handler.seek(0, os.SEEK_END)
-                self._sizes[postfix] = handler.tell()
-                orig_close()
-
-            handler.close = wrapped_close
-            return handler
-
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
-        f = update_size_on_close(f)
 
-        self._sizes[postfix] = None
-        self._files.append(f)
+        artifact = self.get_artifact(postfix)
+        artifact.handle = f
 
         return f
 
     def close(self):
-        '''close all files opened by the manager
-        '''
-        for f in self._files:
-            f.close()
+        """
+        Close all files opened by the manager.
+        """
+        for a in self._artifacts:
+            if a.handle is not None:
+                a.handle.close()
 
 
 class PersistentStringIO(io.StringIO):
     ''' A StringIO that does not clear the buffer when closed.
+
         .. note::
+
             This StringIO subclass behaves like StringIO except that its
             close() method, which would normally clear the buffer, has no
             effect. The clear() method, however, may still be used.
@@ -168,7 +230,9 @@ class PersistentStringIO(io.StringIO):
 
 class PersistentBytesIO(io.BytesIO):
     ''' A BytesIO that does not clear the buffer when closed.
+
         .. note::
+
             This BytesIO subclass behaves like BytesIO except that its
             close() method, which would normally clear the buffer, has no
             effect. The clear() method, however, may still be used.
@@ -188,18 +252,28 @@ class MemoryBuffersManager:
     buffers created.
     """
     def __init__(self):
-        self._reserved_names = set()
-        self._artifacts = collections.defaultdict(list)
-        self.buffers = {}  # maps postfixes to buffer objects
-        self._sizes = {}
+        self._artifacts = []
 
     @property
     def artifacts(self):
-        return dict(self. _artifacts)
+        artifacts = collections.defaultdict(list)
+        for a in self._artifacts:
+            artifacts[a.label].append(a.handle)
+        return dict(artifacts)
+
+    def get_artifacts(self, label=None):
+        return [dict(a) for a in self._artifacts
+                if label is None or a.label == label]
+
+    def get_artifact(self, postfix):
+        for a in self._artifacts:
+            if a.postfix == postfix:
+                return a
+        return None
 
     @property
     def estimated_sizes(self):
-        return self._sizes
+        return {a.postfix: a.current_size for a in self._artifacts}
 
     def reserve_name(self, label, postfix):
         """
@@ -253,38 +327,28 @@ class MemoryBuffersManager:
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix} must be structured like a relative "
                 f"file path.")
+
         name = Path(postfix).expanduser().resolve()
-        if name in self._reserved_names:
+        if name in [a.name for a in self._artifacts]:
             raise SuitcaseUtilsValueError(
                 f"The postfix {postfix!r} has already been used.")
-        self._reserved_names.add(name)
-
-        # Wraps close() method of a handler to update our size estimate
-        def update_size_on_close(handler):
-            orig_close = handler.close
-
-            def wrapped_close():
-                handler.seek(0, os.SEEK_END)
-                self._sizes[postfix] = handler.tell()
-                orig_close()
-
-            handler.close = wrapped_close
-            return handler
 
         if mode in ('x', 'xt'):
-            buffer = update_size_on_close(PersistentStringIO())
+            buffer = PersistentStringIO()
         elif mode == 'xb':
-            buffer = update_size_on_close(PersistentBytesIO())
+            buffer = PersistentBytesIO()
         else:
             raise ModeError(
                 f"The mode passed to MemoryBuffersManager.open is {mode} but "
                 f"needs to be one of 'x', 'xt' or 'xb'.")
-        self._artifacts[label].append(buffer)
-        self.buffers[postfix] = buffer
+
+        self._artifacts.append(Artifact(label, postfix, name, buffer))
         return buffer
 
     def close(self):
-        '''Close all buffers opened by the manager.
-        '''
-        for f in self.buffers.values():
-            f.close()
+        """
+        Close all buffers opened by the manager.
+        """
+        for a in self._artifacts:
+            if a.handle is not None:
+                a.handle.close()
