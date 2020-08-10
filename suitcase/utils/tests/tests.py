@@ -38,6 +38,8 @@ def test_multifile_basic_operation(tmp_path):
         actual = f.read()
     assert actual == 'test'
     assert [name1, name2] == manager.artifacts['thing']
+    assert 2 == len(manager.get_artifacts('thing'))
+    assert 'stuff' == manager.get_artifacts('thing')[0]['postfix']
 
     # Test append.
     manager = MultiFileManager(tmp_path)
@@ -82,6 +84,8 @@ def test_memory_buffers_basic_operation():
     actual = f.read()
     assert actual == 'test'
     assert [f] == manager.artifacts['thing']
+    assert 1 == len(manager.get_artifacts('thing'))
+    assert 'stuff' == manager.get_artifacts('thing')[0]['postfix']
 
 
 def test_fixture(example_data):

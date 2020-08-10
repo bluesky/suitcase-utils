@@ -28,6 +28,22 @@ class UnknownEventType(SuitcaseUtilsError):
 
 
 class Artifact:
+    """
+    A class that tracks information about a managed resource.
+
+    Parameters
+    ----------
+    label : string
+        A label for the sort of content being stored, such as
+        'stream_data' or 'metadata'.
+    postfix : string
+        Postfix for the file name. Must be unique per Manager.
+    name : string
+        Name of the file. The full file path or similar unique identifier.
+    handle: handle
+        A handle to a file, memory stream or similar.
+    """
+
     def __init__(self, label, postfix, name=None, handle=None):
         self.label = label
         self.postfix = postfix
@@ -41,6 +57,11 @@ class Artifact:
             self.handle = handle
 
     def __iter__(self):
+        """
+        Make this class iterable.
+
+        Allows converting instances to a dict by casting: dict(myartifact)
+        """
         yield 'label', self.label
         yield 'postfix', self.postfix
         yield 'name', self.name
@@ -50,6 +71,13 @@ class Artifact:
 
     @property
     def handle(self):
+        """
+        Access the handle to the resource.
+
+        A handle is expected to have ``close``, ``seek`` and ``tell`` methods.
+        When a handle is assigned to this property, those methods are hooked
+        and used to track the size of the resource.
+        """
         return self._handle
 
     @handle.setter
@@ -72,6 +100,9 @@ class Artifact:
 
     @property
     def current_size(self):
+        """
+        Returns the size of the attached handle, or None if unavailable.
+        """
         if self.handle is None:
             return None
 
@@ -96,7 +127,7 @@ class MultiFileManager:
         The directory (as a string or as a Path) to create teh files inside.
     allowed_modes : Iterable
         Modes accepted by ``MultiFileManager.open``. By default this is
-        retricted to "exclusive creation" modes ('x', 'xt', 'xb') which raise
+        restricted to "exclusive creation" modes ('x', 'xt', 'xb') which raise
         an error if the file already exists. This choice of defaults is meant
         to protect the user for unintentionally overwriting old files. In
         situations where overwrite ('w', 'wb') or append ('a', 'r+b') are
@@ -111,16 +142,31 @@ class MultiFileManager:
 
     @property
     def artifacts(self):
+        """
+        Provides dictionary mapping artifact labels to (file)names.
+        """
         artifacts = collections.defaultdict(list)
         for a in self._artifacts:
             artifacts[a.label].append(a.name)
         return dict(artifacts)
 
     def get_artifacts(self, label=None):
+        """
+        Returns list of dicts, each populated with artifact properties.
+
+        Parameters
+        ----------
+        label : string
+            Optional. Filter returned list to include only artifacts that
+            match the given label value.
+        """
         return [dict(a) for a in self._artifacts
                 if label is None or a.label == label]
 
-    def get_artifact(self, postfix):
+    def _get_artifact(self, postfix):
+        """
+        Returns artifact for a given postfix.
+        """
         for a in self._artifacts:
             if a.postfix == postfix:
                 return a
@@ -128,6 +174,9 @@ class MultiFileManager:
 
     @property
     def estimated_sizes(self):
+        """
+        Provides dictionary mapping artifact postfix to current size.
+        """
         return {a.postfix: a.current_size for a in self._artifacts}
 
     def reserve_name(self, label, postfix):
@@ -200,7 +249,7 @@ class MultiFileManager:
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         f = open(filepath, mode=mode, encoding=encoding, errors=errors)
 
-        artifact = self.get_artifact(postfix)
+        artifact = self._get_artifact(postfix)
         artifact.handle = f
 
         return f
@@ -256,16 +305,31 @@ class MemoryBuffersManager:
 
     @property
     def artifacts(self):
+        """
+        Provides dictionary mapping artifact labels to (file)names.
+        """
         artifacts = collections.defaultdict(list)
         for a in self._artifacts:
             artifacts[a.label].append(a.handle)
         return dict(artifacts)
 
     def get_artifacts(self, label=None):
+        """
+        Returns list of dicts, each populated with artifact properties.
+
+        Parameters
+        ----------
+        label : string
+            Optional. Filter returned list to include only artifacts that
+            match the given label value.
+        """
         return [dict(a) for a in self._artifacts
                 if label is None or a.label == label]
 
-    def get_artifact(self, postfix):
+    def _get_artifact(self, postfix):
+        """
+        Returns artifact for a given postfix.
+        """
         for a in self._artifacts:
             if a.postfix == postfix:
                 return a
@@ -273,6 +337,9 @@ class MemoryBuffersManager:
 
     @property
     def estimated_sizes(self):
+        """
+        Provides dictionary mapping artifact postfix to current size.
+        """
         return {a.postfix: a.current_size for a in self._artifacts}
 
     def reserve_name(self, label, postfix):
