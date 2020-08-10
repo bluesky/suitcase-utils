@@ -56,18 +56,21 @@ class Artifact:
         if handle is not None:
             self.handle = handle
 
-    def __iter__(self):
+    def to_dict(self):
         """
-        Make this class iterable.
+        Returns current values of properties as a dictionary.
 
-        Allows converting instances to a dict by casting: dict(myartifact)
+        Only ``handle`` is a mutable reference. Other values are snapshots
+        of current values at the time of calling this method.
         """
-        yield 'label', self.label
-        yield 'postfix', self.postfix
-        yield 'name', self.name
-        yield 'current_size', self.current_size
-        yield 'initial_size', self.initial_size
-        yield 'handle', self.handle
+        return {
+            'label': self.label,
+            'postfix': self.postfix,
+            'name': self.name,
+            'current_size': self.current_size,
+            'initial_size': self.initial_size,
+            'handle': self.handle,
+        }
 
     @property
     def handle(self):
@@ -160,7 +163,7 @@ class MultiFileManager:
             Optional. Filter returned list to include only artifacts that
             match the given label value.
         """
-        return [dict(a) for a in self._artifacts
+        return [a.to_dict() for a in self._artifacts
                 if label is None or a.label == label]
 
     def _get_artifact(self, postfix):
@@ -323,7 +326,7 @@ class MemoryBuffersManager:
             Optional. Filter returned list to include only artifacts that
             match the given label value.
         """
-        return [dict(a) for a in self._artifacts
+        return [a.to_dict() for a in self._artifacts
                 if label is None or a.label == label]
 
     def _get_artifact(self, postfix):
