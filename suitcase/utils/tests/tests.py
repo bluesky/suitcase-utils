@@ -33,10 +33,13 @@ def test_multifile_basic_operation(tmp_path):
     assert not f.closed
     manager.close()
     assert f.closed
+    assert 4 == manager.estimated_sizes['stuff']
     with open(name1) as f:
         actual = f.read()
     assert actual == 'test'
     assert [name1, name2] == manager.artifacts['thing']
+    assert 2 == len(manager.get_artifacts('thing'))
+    assert 'stuff' == manager.get_artifacts('thing')[0]['postfix']
 
     # Test append.
     manager = MultiFileManager(tmp_path)
@@ -76,10 +79,13 @@ def test_memory_buffers_basic_operation():
     assert not f.closed
     manager.close()
     assert not f.closed  # Close is a no-op on Persistent{String|Bytes}IO.
+    assert 4 == manager.estimated_sizes['stuff']
     f.seek(0)
     actual = f.read()
     assert actual == 'test'
     assert [f] == manager.artifacts['thing']
+    assert 1 == len(manager.get_artifacts('thing'))
+    assert 'stuff' == manager.get_artifacts('thing')[0]['postfix']
 
 
 def test_fixture(example_data):
